@@ -1,41 +1,27 @@
 module Initialisation
-
-export individuals_per_patch, number_of_patches, Individual, Patch, create_individual, create_subpopulation, create_population
-#Constants
-const individuals_per_patch = 100
-const number_of_patches = 100
+using Random: bitrand
+export Individual, Patch, create_individual, create_subpopulation, create_population
 
 
-#An individual has a genome, a sex and an id
-struct Individual
-    genome:: Tuple{Bool, Bool}
-    sex:: Bool #false = female, true = male
-    id:: Int
-end
-
-#A patch has a location and a list of individuals
+#A patch has a location and a list of individual-genomes
 struct Patch
-    females:: Vector{Individual}
-    males:: Vector{Individual}
+    females:: BitMatrix
+    males:: BitMatrix
     location:: Int
 end
 
 
-#create the initial population
-function create_individual(id,sex)
-    genome = (rand(Bool), rand(Bool))
-    return Individual(genome,sex,id)
-end
+
 
 #create the population of a single patch
-function create_subpopulation(location)
-    females = [create_individual(location*individuals_per_patch/2*1 + i,true) for i in 1:Int(floor(individuals_per_patch/2))]
-    males = [create_individual(location*individuals_per_patch/2*2 + i,false) for i in 1:Int(floor(individuals_per_patch/2))]
+function create_subpopulation(location::Int64, individuals_per_patch::Int64)
+    females = bitrand((individuals_per_patch,2))
+    males = bitrand((individuals_per_patch,2))
     return Patch(females,males,location)
 end
 
-function create_population()
-    patches = [create_subpopulation(i) for i in 1:number_of_patches]
-    return patches
+function create_population(number_of_patches::Int64, individuals_per_patch::Int64)
+    return create_subpopulation.(1:number_of_patches,individuals_per_patch)
 end
 end
+
